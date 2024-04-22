@@ -3,6 +3,7 @@ from typing import List
 from urllib.request import urlretrieve
 
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 import pdb
 
@@ -39,7 +40,10 @@ class DataLoader:
 
     def handle_NaN_values(self, df: pd.DataFrame) -> pd.DataFrame:
         """Write a function to handle NaN values in a dataframe"""
-        return df.fillna(df.mean())
+        numeric_cols = df.select_dtypes(include=[np.number]).columns  # Select only numeric columns
+        for col in numeric_cols:
+            df[col] = df[col].fillna(df[col].mean())  # Fill NaNs in each column with its mean
+        return df
 
     def scale_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Write a function to normalise values in a dataframe. Use StandardScaler."""
@@ -52,7 +56,7 @@ class DataLoader:
         df = self.party_data
         df.to_csv('ches.csv')
         new_df = pd.read_csv('ches.csv')
-        #df = self.remove_duplicates(df)
+        df = self.remove_duplicates(df)
         df = self.remove_nonfeature_cols(df, self.non_features, self.index)
         df = self.handle_NaN_values(df)
         df = self.scale_features(df)
